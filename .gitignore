@@ -175,3 +175,4 @@ cython_debug/
 
 security_datasets/
 security_dataset.jsonl
+tokenized_dataset/
