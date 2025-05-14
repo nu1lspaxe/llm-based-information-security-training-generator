@@ -1,12 +1,9 @@
 # A LLM-based Information Security Training Generator
 
 ```bash
-pip install huggingface_hub streamlit langchain langchain-ollama langchain-community chromadb requests ratelimit chardet scapy ijson peft datasets torch bitsandbytes
-
-# Enable GPU support
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+huggingface-cli download meta-llama/Llama-3.1-8B --local-dir ./llama3-8b --local-dir-use-symlinks False
 ```
 
 ```bash
-huggingface-cli download meta-llama/Llama-3.1-8B --local-dir ./llama3-8b --local-dir-use-symlinks False
+docker exec -it <container_name_or_id> cypher-shell -u neo4j -p neo4j -d system "ALTER CURRENT USER SET PASSWORD FROM 'neo4j' TO '<password>';"
 ```

@@ -12,9 +12,9 @@ from tqdm import tqdm
 from typing import List, Tuple
 from functools import lru_cache
 from ratelimit import limits, sleep_and_retry
-import dotenv
+from dotenv import load_dotenv
 
-dotenv.load_dotenv()
+load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN", "")
 API_URL = "https://api.github.com/repos/OTRF/Security-Datasets/contents/datasets"
 BASE_SAVE_PATH = "./security_datasets"
