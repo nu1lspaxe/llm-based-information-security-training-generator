@@ -4,6 +4,9 @@ os.environ["DISABLE_FLASH_ATTENTION"] = "1"  # Disable flash-attention
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"  # For better error reporting
 os.environ["LITELLM_PROVIDER"] = "huggingface"  # Set default provider
 os.environ["LITELLM_LOG"] = "DEBUG"
+os.environ["LITELLM_CACHE"] = "true"  # Enable caching
+os.environ["LITELLM_MAX_RETRIES"] = "3"  # Set max retries
+os.environ["LITELLM_TIMEOUT"] = "60"  # Set timeout in seconds
 
 import streamlit as st
 from agents import CISOAgent, SecurityAnalystAgent, IncidentResponderAgent
@@ -15,10 +18,13 @@ import asyncio
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftConfig, PeftModel
 import logging
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
 async def init_models():
+    load_dotenv()
+
     """Initialize models and store them in session state"""
     if 'models_initialized' not in st.session_state:
         try:

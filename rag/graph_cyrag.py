@@ -6,16 +6,55 @@ import logging
 import torch
 from typing import List, Optional
 from sentence_transformers import SentenceTransformer
+import os
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
 class GraphCyRAG:
     def __init__(self, neo4j_uri, neo4j_user, neo4j_password, llm):
-        self.driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
-        self.llm = llm
-        self._init_vectorstore()
-        self._create_initial_schema()  # Create initial schema
-        self._initialize_sample_data()  # Initialize sample data
+        # Load environment variables
+        load_dotenv()
+        
+        # Verify Neo4j credentials
+        if not neo4j_password:
+            neo4j_password = os.getenv("NEO4J_PASSWORD")
+            if not neo4j_password:
+                raise ValueError("NEO4J_PASSWORD environment variable is not set")
+        
+        if not neo4j_uri:
+            neo4j_uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+        
+        if not neo4j_user:
+            neo4j_user = os.getenv("NEO4J_USER", "neo4j")
+        
+        logger.info(f"Attempting to connect to Neo4j at {neo4j_uri} as user {neo4j_user}")
+        
+        try:
+            # Test connection first
+            self.driver = GraphDatabase.driver(
+                neo4j_uri,
+                auth=(neo4j_user, neo4j_password),
+                max_connection_lifetime=30
+            )
+            
+            # Verify connection
+            with self.driver.session() as session:
+                result = session.run("RETURN 1 as test")
+                if not result.single():
+                    raise RuntimeError("Failed to verify Neo4j connection")
+            
+            logger.info("Successfully connected to Neo4j")
+            
+            self.llm = llm
+            self._init_vectorstore()
+            self._create_initial_schema()  # Create initial schema
+            self._initialize_sample_data()  # Initialize sample data
+            
+        except Exception as e:
+            logger.error(f"Failed to connect to Neo4j: {str(e)}")
+            logger.error("Please verify your Neo4j credentials and ensure the database is running")
+            raise RuntimeError(f"Neo4j connection failed: {str(e)}")
     
     def _init_vectorstore(self):
         try:

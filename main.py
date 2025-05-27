@@ -13,7 +13,7 @@ def main():
     load_dotenv()
 
     # HuggingFace login
-    login(token=os.getenv("HUGGINGFACE_TOKEN"))
+    login(token=os.getenv("HF_TOKEN"))
     
     # Configure PyTorch
     if not torch.cuda.is_available():
@@ -26,13 +26,7 @@ def main():
     
     # Get the absolute path to run.py
     run_py_path = str(Path(__file__).parent / "run.py")
-    
-    # Configure Streamlit environment variables
-    os.environ["STREAMLIT_SERVER_HEADLESS"] = "true"
-    os.environ["STREAMLIT_SERVER_PORT"] = "8501"
-    os.environ["STREAMLIT_SERVER_ADDRESS"] = "localhost"
-    os.environ["STREAMLIT_BROWSER_GATHER_USAGE_STATS"] = "false"
-    
+   
     # Run Streamlit with proper configuration
     try:
         # First try using subprocess

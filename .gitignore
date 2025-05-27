@@ -179,3 +179,4 @@ tokenized_dataset/
 fine_tuned_model/
 
 chroma.*
+neo4j/

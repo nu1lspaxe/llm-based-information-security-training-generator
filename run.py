@@ -30,12 +30,6 @@ async def main():
         # Import the Streamlit app
         from ui.app import main as app_main
         
-        # Configure asyncio for WSL
-        if sys.platform == 'linux':
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.set_debug(True)
-        
         await app_main()
     except Exception as e:
         logger.error(f"Error running application: {str(e)}")

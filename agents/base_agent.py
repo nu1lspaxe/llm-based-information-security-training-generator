@@ -38,11 +38,14 @@ class BaseSecurityAgent(ABC):
         
         logger.info(f"Connecting to Neo4j at {neo4j_uri} as user {neo4j_user}")
         
+        # Configure LiteLLM with HuggingFace
         self.llm = LLM(
-            model=hf_model_path,
+            model=f"huggingface/{hf_model_path}",
             api_key=hf_token,
-            base_url="https://api-inference.huggingface.co",
-            temperature=0.7
+            temperature=0.7,
+            max_tokens=512,
+            top_p=0.9,
+            do_sample=True
         )
         
         # Store HuggingFace token for direct API calls
@@ -65,41 +68,23 @@ You are a helpful AI assistant that provides detailed and accurate responses.
             
             logger.info(f"Calling LLM with prompt: {formatted_prompt[:100]}...")
             
-            # Make direct API call to HuggingFace
-            headers = {
-                "Authorization": f"Bearer {self.hf_token}",
-                "Content-Type": "application/json"
-            }
-            
-            payload = {
-                "inputs": formatted_prompt,
-                "parameters": {
-                    "temperature": 0.7,
-                    "top_p": 0.9,
-                    "max_new_tokens": 512,
-                    "do_sample": True,
-                    "return_full_text": False
-                }
-            }
-            
-            response = requests.post(
-                "https://api-inference.huggingface.co/models/meta-llama/Llama-3.1-8B-Instruct",
-                headers=headers,
-                json=payload
+            # Use LiteLLM completion
+            response = completion(
+                model=f"huggingface/{os.getenv('HF_MODEL_PATH')}",
+                messages=[{"role": "user", "content": formatted_prompt}],
+                api_key=self.hf_token,
+                temperature=0.7,
+                max_tokens=512,
+                top_p=0.9,
+                do_sample=True
             )
             
-            if response.status_code != 200:
-                error_msg = f"API call failed with status {response.status_code}: {response.text}"
-                logger.error(error_msg)
-                raise Exception(error_msg)
+            if not response or not response.choices:
+                raise Exception("Empty response from LLM")
             
-            result = response.json()
-            if isinstance(result, list) and len(result) > 0:
-                generated_text = result[0].get("generated_text", "")
-                logger.info("Successfully received response from LLM")
-                return generated_text
-            else:
-                raise Exception(f"Unexpected response format: {result}")
+            generated_text = response.choices[0].message.content
+            logger.info("Successfully received response from LLM")
+            return generated_text
                 
         except Exception as e:
             logger.error(f"Error calling LLM: {str(e)}")

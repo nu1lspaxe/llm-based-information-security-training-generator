@@ -1,9 +1,27 @@
 # A LLM-based Information Security Training Generator
 
-```bash
-huggingface-cli download meta-llama/Llama-3.1-8B --local-dir ./llama3-8b --local-dir-use-symlinks False
-```
+## Setup Steps
 
-```bash
-docker exec -it <container_name_or_id> cypher-shell -u neo4j -p neo4j -d system "ALTER CURRENT USER SET PASSWORD FROM 'neo4j' TO '<password>';"
-```
+1. Start a neo4j database with docker
+
+    ```bash
+    docker run --name neo4j -d --publish=7474:7474 --publish=7687:7687 --volume=$($PWD.Path)/neo4j/data:/data neo4j
+    ```
+
+2. Replace neo4j user password 
+
+    ```bash
+    docker exec -it neo4j cypher-shell -u neo4j -p neo4j -d system "ALTER CURRENT USER SET PASSWORD FROM 'neo4j' TO 'neo4jpasswd';"
+    ```
+
+3. Activate virutal python runtime
+
+    ```bash
+    ./.venv/Scripts/activate
+    ```
+
+4. Run the application
+
+    ```bash
+    python main.py
+    ```

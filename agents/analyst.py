@@ -41,3 +41,13 @@ class SecurityAnalystAgent(BaseSecurityAgent):
         
         Technical Assessment:"""
         return await self._call_llm(prompt) 
+
+    def validate_input(self, text):
+        if not isinstance(text, str):
+            raise ValueError("Input must be a string")
+        return text
+
+    def process_input(self, text, tokenizer, device):
+        validated_text = self.validate_input(text)
+        inputs = tokenizer(validated_text, return_tensors="pt", padding=True, truncation=True)
+        return {k: v.to(device) for k, v in inputs.items()} 
